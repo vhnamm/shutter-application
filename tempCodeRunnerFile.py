@@ -1,25 +1,6 @@
-    # def on_file_selected(self, selection):
-    #     try:
-    #         if not selection:
-    #             print("No file selected")
-    #             return
-    #         image_path = selection[0]
-    #         if not os.path.exists(image_path):
-    #             print(f"File does not exist: {image_path}")
-    #             return
-    #         valid_extensions = ('.png', '.jpg', '.jpeg')
-    #         if not image_path.lower().endswith(valid_extensions):
-    #             print(f"Invalid image format: {image_path}")
-    #             return
-
-            
-    #         home_screen = self.root.get_screen("home")  # Truy cập màn hình 'home'
-    #         content_image = home_screen.ids.home_main_screen.img  # Lấy widget Image qua ID
-    #         content_image.source = image_path  # Cập nhật đường dẫn ảnh
-    #         content_image.opacity = 1  # Hiển thị ảnh
-
-    #         print(f"Selected image: {image_path}")
-                      
-
-    #     except Exception as e:
-    #         print(f"Error processing file: {e}")
+elif hist_type == "detect_faces":
+                    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+                    face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+                    faces = face_cascade.detectMultiScale(gray, 1.1, 4)
+                    for (x, y, w, h) in faces:
+                        cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)

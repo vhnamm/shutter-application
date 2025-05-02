@@ -9,6 +9,8 @@ import numpy as np
 from io import BytesIO
 from PIL import Image as PILImage
 from kivy.core.image import Image as CoreImage
+import mysql.connector
+from kivymd.toast import toast
 
 Window.size = (360, 640)
 
@@ -18,15 +20,63 @@ class Shutter(MDApp):
         self.original_image_cv = None  # lưu ảnh gốc
         self.brightness_value = 0
         self.contrast_value = 0
-        self.edit_history = []  # Lưu các hiệu ứng đã apply (trừ brightness/contrast)
-
+        self.edit_history = []
+       
         try:
-            kv = Builder.load_file("user_interface.kv")
-            print("KV file loaded successfully")
+            kv = Builder.load_file("user_interface.kv")          
             return kv
         except Exception as e:
             print(f"Error loading KV file: {e}")
             return None
+
+    @staticmethod
+    def connect_db():
+
+            db = mysql.connector.connect(
+                host='localhost',
+                user='root',
+                password='vohoainam10012005',
+                database='login_database'
+            )
+            return db
+
+    def create_account(self):
+        regisdb = self.connect_db()
+        contro = regisdb.cursor()
+        username = self.root.ids.username_register.text.strip()
+        password = self.root.ids.pass_register.text.strip()
+        try:
+            contro.execute("INSERT INTO users(username, password) VALUES (%s, %s)", (username,password))
+            regisdb.commit()
+            toast("Tạo tài khoản thành công!")
+            self.root.current = 'login'
+            self.root.transition.direction = "left"
+        except mysql.connector.IntegrityError: #xu li loi rang buoc(UNIQUE, Not NUll trong sql)
+            toast("Tài khoản đã tồn tại")
+        finally:
+            regisdb.close()
+            contro.close()
+
+    def sign_in(self):
+        username = self.root.ids.username_login.text.strip()
+        password = self.root.ids.pass_login.text.strip()
+
+        if not username or not password:
+            toast("Vui lòng nhập tài khoản và mật khẩu")
+            return
+
+        conn = self.connect_db()
+        if conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM users WHERE username=%s AND password=%s", (username, password))
+            user = cursor.fetchone()
+            if user:
+                toast(f"Welcome, {username}!")
+                self.root.current = 'home'
+            else:
+                toast("Sai tài khoản hoặc mật khẩu")
+            cursor.close()
+            conn.close()
 
     def on_upload_pressed(self):
         filechooser.open_file(
@@ -43,14 +93,7 @@ class Shutter(MDApp):
 
             image_path = selection[0]
             print("Image selected:", image_path)
-
-            if not os.path.exists(image_path):
-                print("File does not exist.")
-                return
-            if not image_path.lower().endswith(('.png', '.jpg', '.jpeg')):
-                print("Invalid image format.")
-                return
-
+                      
             image_widget = None
             if 'img' in self.root.ids:
                 image_widget = self.root.ids.img
@@ -72,9 +115,6 @@ class Shutter(MDApp):
 
             image_widget.source = image_path
             image_widget.opacity = 1
-
-
-
             # Lưu ảnh gốc và ảnh hiện tại
             img = cv2.imread(image_path)
             self.original_image_cv = img.copy()
@@ -164,16 +204,14 @@ class Shutter(MDApp):
                     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
                     img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
                 elif hist_type == "rotate":
-                    if not hasattr(self, "rotation_angle"):
-                        self.rotation_angle = 0
-                    self.rotation_angle = (self.rotation_angle + 90) % 360
+                   
                     pil_img = PILImage.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-                    pil_img = pil_img.rotate(-self.rotation_angle, expand=True)
+                    pil_img = pil_img.rotate(-90, expand=True)
                     img = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
                 elif hist_type == "crop":
                     height, width = img.shape[:2]
-                    crop_width = width // 3
-                    crop_height = height // 3
+                    crop_width = int(width * 0.9)
+                    crop_height = int(height * 0.9)
                     x1 = (width - crop_width) // 2
                     y1 = (height - crop_height) // 2
                     x2 = x1 + crop_width
@@ -203,9 +241,26 @@ class Shutter(MDApp):
 
 
 
+
         except Exception as e:
             print(f"Error applying edit: {e}")
 
+    def save_image_to_device(self):
+        if self.current_image_cv is None:
+            toast("Chưa có ảnh để lưu!")
+            return
+
+        def on_path_selected(selection):
+            if selection:
+                save_path = os.path.join(selection[0], "edited_image.png")
+                try:
+                    cv2.imwrite(save_path, self.current_image_cv)
+
+                except Exception as e:
+                    toast(f"Lỗi khi lưu ảnh: {e}")
+
+
+        filechooser.choose_dir(on_selection=on_path_selected)
 
 if __name__ == '__main__':
     Shutter().run()
