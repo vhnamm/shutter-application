@@ -4,7 +4,7 @@ MDScreenManager:
         md_bg_color: 1,1,1,1
         MDFloatLayout:
             Image:
-                source: "D:/nam/study/New folder/10447398.png"
+                source: "D:/nam/study/shutter_application/10447398.png"
                 size_hint: (0.22,0.22)
                 pos_hint: {"center_x": 0.1, "center_y": 0.92}
             MDLabel:
@@ -13,7 +13,7 @@ MDScreenManager:
                 bold: True
                 pos_hint: {"center_x":0.7 , "center_y": 0.92}
             Image:
-                source: "D:/nam/study/New folder/concept-cinema-with-film-elements.png"
+                source: "D:/nam/study/shutter_application/concept-cinema-with-film-elements.png"
                 size_hint: (1,1)
                 pos_hint: {"center_x": 0.5, "center_y": 0.69}
             MDLabel:
@@ -51,7 +51,9 @@ MDScreenManager:
                 pos_hint: {"center_x":0.5,"center_y":0.15}
                 background_color: 0,0,0,0
                 color: 0.63, 0.21, 0.31
-                on_release: app.root.current = 'register'
+                on_release:
+                    app.root.current = 'register'
+                    app.root.transition.direction = "left"
                 canvas.before:
                     Color:
                         rgb: 0.63, 0.21, 0.31
@@ -69,12 +71,14 @@ MDScreenManager:
                 pos_hint: {"center_x": 0.5, "center_y": 0.5}
 
                 MDTopAppBar:
-                    title: "Menu"
+                    title: "Save"
                     specific_text_color: 0.63, 0.21, 0.31, 1
                     md_bg_color: 1,1,1,1
                     elevation: 0
-                    anchor_title: "left"
+                    anchor_title: "right"
                     font_name: "Poppins-Medium"
+                    right_action_items: [["download", lambda x: app.save_image_to_device()]]
+                    left_action_items: [["menu", lambda x: print("more option")]]
 
                 Image:
                     id: img
@@ -95,13 +99,13 @@ MDScreenManager:
                         orientation: "vertical"
                         size_hint_x: 0.25
                         MDIconButton:
-                            icon: "arrow-left"
+                            icon: "arrow-u-left-top"
                             theme_icon_color: "Custom"
                             icon_color: 1,1,1,1
                             pos_hint: {"center_x": 0.5, "center_y": 0.7}
                             on_release: app.restore_original()
                         MDLabel:
-                            text: "Back"
+                            text: "Reset"
                             halign: "center"
                             theme_text_color: "Custom"
                             text_color: 1,1,1,1
@@ -333,7 +337,7 @@ MDScreenManager:
                     app.root.transition.direction = "right"
                     app.root.current = 'landing'
             Image:
-                source: "D:/nam/study/New folder/10447398.png"
+                source: "D:/nam/study/shutter_application/10447398.png"
                 size_hint: 0.25, 0.25
                 pos_hint: {"center_x":0.5,"center_y":0.9}
 
@@ -399,8 +403,9 @@ MDScreenManager:
                 pos_hint: {"center_x":0.5,"center_y":0.25}
                 background_color: 0,0,0,0
                 on_release:
-                    app.root.current = 'login'
-                    app.root.transition.direction = "left"
+                    app.create_account()
+
+
                 canvas.before:
                     Color:
                         rgb: 0.63, 0.21, 0.31
@@ -411,3 +416,101 @@ MDScreenManager:
 
     MDScreen:
         name: "login"
+        MDFloatLayout:
+            MDIconButton:
+                icon: "arrow-left"
+                pos_hint:{"center_y":0.95}
+                on_release:
+                    app.root.transition.direction = "right"
+                    app.root.current = 'landing'
+            Image:
+                source: "D:/nam/study/shutter_application/10447398.png"
+                size_hint: 0.25, 0.25
+                pos_hint: {"center_x":0.5,"center_y":0.9}
+
+            MDLabel:
+                text:"Welcome Back!"
+                font_name: "Poppins/Poppins-Bold"
+                font_size: "25dp"
+                pos_hint:{"center_y":0.8}
+                halign: "center"
+                color: 0.13, 0.13, 0.13, 1
+            MDLabel:
+                text: "Sign In your account."
+                font_name:"Poppins/Poppins-Light"
+                font_size: "15sp"
+                color: 0.5, 0.5, 0.5, 1
+                halign: "center"
+                pos_hint:{"center_y":0.72}
+
+            MDTextField:
+                id: username_login
+                size_hint: 0.8, 0.1
+                pos_hint: {"center_x": 0.5, "center_y": 0.6}
+
+                multiline: False
+                mode: "rectangle"  # Sử dụng mode round hợp lệ
+                hint_text: "Username"
+                hint_text_color_focus: 0.63, 0.21, 0.31, 1
+                hint_text_color_normal:0.5, 0.5, 0.5, 1
+                font_name: "Poppins/Poppins-medium"
+                cursor_color: 0, 0, 0.23, 1
+                cursor_width: "2dp"
+                line_color_normal:0.5, 0.5, 0.5, 1
+                line_color_focus: 0.63, 0.21, 0.31, 1
+                text_color_focus: 0, 0, 0.23, 1
+                icon_right: "account-circle"
+                icon_right_color_normal: 0.5, 0.5, 0.5, 1
+                icon_right_color_focus: 0.63, 0.21, 0.31, 1
+
+            MDTextField:
+                id: pass_login
+                password: True
+                size_hint: 0.8, 0.1
+                pos_hint: {"center_x": 0.5, "center_y": 0.45}
+
+                multiline: False
+                mode: "rectangle"  # Sử dụng mode round hợp lệ
+                hint_text: "Password"
+                hint_text_color_focus: 0.63, 0.21, 0.31, 1
+                hint_text_color_normal:0.5, 0.5, 0.5, 1
+                font_name: "Poppins/Poppins-medium"
+                cursor_color: 0, 0, 0.23, 1
+                cursor_width: "2dp"
+                line_color_normal:0.5, 0.5, 0.5, 1
+                line_color_focus: 0.63, 0.21, 0.31, 1
+                text_color_focus: 0, 0, 0.23, 1
+                icon_right: "lock"
+                icon_right_color_normal: 0.5, 0.5, 0.5, 1
+                icon_right_color_focus: 0.63, 0.21, 0.31, 1
+
+            Button:
+                text: "Sign In"
+                size_hint: (.8,.065)
+                pos_hint: {"center_x":0.5,"center_y":0.25}
+                background_color: 0,0,0,0
+                on_release:
+                    app.sign_in()
+                canvas.before:
+                    Color:
+                        rgb: 0.63, 0.21, 0.31
+                    RoundedRectangle:
+                        size: self.size
+                        pos: self.pos
+                        radius: [5]
+            MDLabel:
+                text: "Don't have an account?"
+                pos_hint: {"center_x" :0.7,"center_y": 0.17}
+                font_size: "13sp"
+                font_name:"Poppins/Poppins-Medium"
+            MDTextButton:
+                text: "Sign up"
+                pos_hint: {"center_x": .75, "center_y":.17}
+                font_size: "13sp"
+                font_name:"Poppins/Poppins-Medium"
+                bold: True
+                color: 0.63, 0.21, 0.31, 1
+                on_release:
+                    app.root.current ='register'
+                    app.root.transition.direction ="left"
+                
